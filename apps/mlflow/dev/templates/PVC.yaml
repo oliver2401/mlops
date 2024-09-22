@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: List
+items:
+{{- if .Values.storage.enabled }}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: "datasets-pvc-{{ .Values.environment }}"
+    namespace: {{ .Release.Namespace }}
+  spec:
+    volumeName: {{ .Values.persistentVolumes.datasets.name }}-{{ .Values.environment }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: {{ .Values.persistentVolumes.datasets.size }}
+    storageClassName: ""
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: "models-pvc-{{ .Values.environment }}"
+    namespace: {{ .Release.Namespace }}
+  spec:
+    volumeName: {{ .Values.persistentVolumes.models.name }}-{{ .Values.environment }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: {{ .Values.persistentVolumes.models.size }}
+    storageClassName: ""
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: "mlflow-pvc-{{ .Values.environment }}"
+    namespace: {{ .Release.Namespace }}
+  spec:
+    volumeName: {{ .Values.persistentVolumes.mlflow.name }}-{{ .Values.environment }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: {{ .Values.persistentVolumes.mlflow.size }}
+    storageClassName: ""
+{{- end }}

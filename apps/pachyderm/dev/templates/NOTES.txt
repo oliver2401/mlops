@@ -1,0 +1,1 @@
+kubectl patch ingress pachyderm-proxy -n mlops-dev --type='json' -p='[{"op": "add", "path": "/spec/ingressClassName", "value": "nginx"}]'

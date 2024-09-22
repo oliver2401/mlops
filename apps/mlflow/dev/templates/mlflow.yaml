@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  namespace: {{ .Release.Namespace }} #mlops
+spec:
+  replicas: {{ .Values.replicaCount }} #3
+  selector:
+    matchLabels:
+      app: mlflow
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: mlflow
+    spec:
+      {{ if .Values.imagePullSecrets  }}             
+      imagePullSecrets: 
+        - name: {{ .Values.imagePullSecrets }}
+      {{ end }} 
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          name: mlflow
+          imagePullPolicy: {{ .Values.image.pullPolicy}} #IfNotPresent
+          ports:
+            - containerPort: 5000
+          {{ if .Values.debug }}
+          command: ["sh", "-c", "tail -f /dev/null"] 
+          {{ else }}
+          command: ["sh", "-c", "mlflow server --artifacts-destination /tmp/aidrive/models  --backend-store-uri file:/tmp/aidrive/mlflow --default-artifact-root mlflow-artifacts:/mlruns/  -h 0.0.0.0 -p 5000"]
+          {{ end }} 
+          volumeMounts:
+            - mountPath: /tmp/aidrive/datasets
+              name: datasets-pvc-{{ .Values.environment }}
+            - mountPath: /tmp/aidrive/models #/mlartifacts
+              name: models-pvc-{{ .Values.environment }}
+            - mountPath: /tmp/aidrive/mlflow #/mlruns
+              name: mlflow-pvc-{{ .Values.environment }}
+            - mountPath: /dev/shm
+              name: dshm
+      restartPolicy: Always
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: datasets-pvc-{{ .Values.environment }}
+          persistentVolumeClaim:
+            claimName: datasets-pvc-{{ .Values.environment }}
+        - name: models-pvc-{{ .Values.environment }}
+          persistentVolumeClaim:
+            claimName: models-pvc-{{ .Values.environment }}
+        - name: mlflow-pvc-{{ .Values.environment }}
+          persistentVolumeClaim:
+            claimName: mlflow-pvc-{{ .Values.environment }}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service-{{ .Values.environment }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: mlflow
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP

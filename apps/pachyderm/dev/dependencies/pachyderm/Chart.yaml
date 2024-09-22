@@ -1,0 +1,33 @@
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: "Pachyderm"
+      url: https://www.pachyderm.com/
+    - name: "Pachyderm repo"
+      url: https://github.com/pachyderm/pachyderm
+    - name: "Chart repo"
+      url: https://github.com/pachyderm/helmchart
+  artifacthub.io/prerelease: "false"
+apiVersion: v2
+appVersion: 2.7.3
+dependencies:
+- condition: postgresql.enabled
+  name: postgresql
+  repository: file://./dependencies/postgresql
+  version: 10.8.0
+- condition: pachd.lokiDeploy
+  name: loki-stack
+  repository: file://./dependencies/loki-stack
+  version: 2.8.1
+description: Explainable, repeatable, scalable data science
+home: https://www.pachyderm.com/
+icon: https://www.pachyderm.com/wp-content/themes/pachyderm/assets/img/favicons/favicon-32x32.png
+keywords:
+- data science
+kubeVersion: '>= 1.16.0-0'
+name: pachyderm
+sources:
+- https://github.com/pachyderm/pachyderm
+- https://github.com/pachyderm/helmchart
+type: application
+version: 2.7.3

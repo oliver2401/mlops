@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  name: mlflow-{{ .Values.environment }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: mlflow.ai-{{ .Values.environment }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: mlflow-service-{{ .Values.environment }}
+            port:
+              number: 5000
+        path: /(.*)
+        pathType: ImplementationSpecific

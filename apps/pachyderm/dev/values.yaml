@@ -1,0 +1,68 @@
+pachyderm: 
+  deployTarget: LOCAL
+  etcd:
+    storageClass: "nfs-client"
+  enterpriseServer:
+      image:
+        repository: "pachyderm/pachd"
+        pullPolicy: "IfNotPresent"
+        tag: "2.7.3"
+  ingress:
+    enabled: true
+    host: "pachyderm-EdgarOliver-experiment"
+
+  loki-stack:
+    loki:
+      persistence:
+        enabled: true
+        existingClaim: "loki-pvc" ## ADDED
+        storageClassName: "sc-pachyderm"
+      ## mkdir /data/loki: permission denied
+      ##
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      ## mkdir /data/loki: permission denied
+      ##
+  pachd:
+    image:
+      repository: "pachyderm/pachd"
+      tag: "2.7.3"
+    storage:
+      local:
+        hostPath: "/MLOps/pachyderm_data/"
+  kubeEventTail:
+    image:
+      repository: pachyderm/kube-event-tail
+      tag: "v0.0.7"
+  pgbouncer:
+    image:
+      repository: pachyderm/pgbouncer
+      tag: 1.16.2
+  postgresql:
+    ## Permission denied: /bitnami/postgresql/data
+    ## 
+    volumePermissions:
+      enabled: true
+      image:
+        registry: docker.io
+        repository: bitnami/bitnami-shell
+        tag: 10-debian-10-r125
+    ## Permission denied: /bitnami/postgresql/data
+    ## 
+    persistence:
+      enabled: true ### ADDED
+      existingClaim: "postgres-pvc" ### ADDED
+      #mountPath: /bitnami/postgresql ### ADDED
+      storageClass: "sc-pachyderm"
+  proxy:
+    host: "localhost"
+    image:
+      repository: "envoyproxy/envoy-distroless"
+      tag: "v1.25.5"
+  preflightCheckJob:
+    image:
+      repository: "pachyderm/pachd"
+      tag: "2.7.3"

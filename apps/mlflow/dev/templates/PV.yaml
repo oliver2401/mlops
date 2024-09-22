@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: List
+items:
+{{- if .Values.storage.enabled }}
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: "{{ .Values.persistentVolumes.datasets.name }}-{{ .Values.environment }}"
+  spec:
+    capacity:
+      storage: {{ .Values.persistentVolumes.datasets.size }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: ""
+    #nfs:
+    #  path: {{ .Values.persistentVolumes.datasets.nfsPath }}
+    #  server: {{ .Values.persistentVolumes.datasets.nfsServer }}
+    hostPath:
+      path: {{ .Values.persistentVolumes.datasets.nfsPath }}  # Specify the directory path on the host
+      type: DirectoryOrCreate
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: "{{ .Values.persistentVolumes.models.name }}-{{ .Values.environment }}"
+  spec:
+    capacity:
+      storage: {{ .Values.persistentVolumes.models.size }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Retain
+    #nfs:
+    #  path: {{ .Values.persistentVolumes.models.nfsPath }}
+    #  server: {{ .Values.persistentVolumes.models.nfsServer }}
+    storageClassName: ""
+    hostPath:
+      path: {{ .Values.persistentVolumes.models.nfsPath }}  # Specify the directory path on the host
+      type: DirectoryOrCreate
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: "{{ .Values.persistentVolumes.mlflow.name }}-{{ .Values.environment }}"
+  spec:
+    capacity:
+      storage: {{ .Values.persistentVolumes.mlflow.size }}
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Retain
+    #nfs:
+    #  path: {{ .Values.persistentVolumes.mlflow.nfsPath }}
+    #  server: {{ .Values.persistentVolumes.mlflow.nfsServer }}
+    storageClassName: ""
+    hostPath:
+      path: {{ .Values.persistentVolumes.mlflow.nfsPath  }}  # Specify the directory path on the host
+      type: DirectoryOrCreate
+{{- end }}

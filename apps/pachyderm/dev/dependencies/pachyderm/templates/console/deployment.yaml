@@ -1,0 +1,167 @@
+{{- /*
+SPDX-FileCopyrightText: Pachyderm, Inc. <info@pachyderm.com>
+SPDX-License-Identifier: Apache-2.0
+*/ -}}
+{{- if .Values.console.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: console
+    suite: pachyderm
+  name: console
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: console
+      suite: pachyderm
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: console
+        suite: pachyderm
+        {{- if .Values.console.podLabels }}
+        {{- toYaml .Values.console.podLabels | nindent 8 }}
+        {{- end }}
+      name: console
+      namespace: {{ .Release.Namespace }}
+      annotations:
+        checksum/helm-values: {{ toJson .Values | sha256sum }}
+        {{- if .Values.console.annotations -}}
+        {{ toYaml .Values.console.annotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.console.priorityClassName }}
+      priorityClassName: {{ .Values.console.priorityClassName }}
+      {{- end }}
+{{- include "pachyderm.imagePullSecrets" . | indent 6 }}
+      containers:
+      - image: "{{ .Values.console.image.repository }}:{{ .Values.console.image.tag }}"
+        imagePullPolicy: {{ .Values.console.image.pullPolicy }}
+        name: console
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: console-http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: console-http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        ports:
+        - containerPort: {{ .Values.console.config.graphqlPort }}
+          name: console-http
+        env:
+        {{- if and (not .Values.ingress.enabled) (not .Values.proxy.enabled) }}
+        - name: REACT_APP_RUNTIME_SUBSCRIPTIONS_PREFIX
+          value: ":{{ .Values.console.config.graphqlPort }}/graphql"
+        {{- end }}
+        - name: ISSUER_URI
+          value: {{ include "pachyderm.issuerURI" . | quote}}
+        - name: REACT_APP_RUNTIME_ISSUER_URI
+          value: {{ include "pachyderm.reactAppRuntimeIssuerURI" . | quote}}
+        - name: REACT_APP_RUNTIME_DISABLE_TELEMETRY
+          value: {{ .Values.console.config.disableTelemetry | quote}}
+        - name: OAUTH_REDIRECT_URI
+          value: {{ include "pachyderm.consoleRedirectURI" . | quote }}
+        - name: OAUTH_CLIENT_ID
+          value: {{ .Values.console.config.oauthClientID | quote }}
+        - name: GRAPHQL_PORT
+          value: {{ .Values.console.config.graphqlPort | quote }}
+        - name: OAUTH_PACHD_CLIENT_ID
+          value: {{ .Values.pachd.oauthClientID | quote }}
+        - name: PACHD_ADDRESS
+          value: {{ include "pachyderm.pachdPeerAddress" . | quote }}
+        - name: OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.console.config.oauthClientSecretSecretName | default "pachyderm-console-secret"}}
+              key: OAUTH_CLIENT_SECRET
+        {{- if .Release.IsUpgrade }}
+        - name: UPGRADE_NO_OP
+          value: {{ randAlphaNum 32 }}
+        {{- end }}
+        {{- if and .Values.pachd.tls.enabled .Values.global.customCaCerts }}
+        - name: NODE_EXTRA_CA_CERTS
+          value:  /pach-tls/certs/root.crt
+        {{- end }}
+        {{ if .Values.global.proxy }}
+        - name: http_proxy
+          value: {{ .Values.global.proxy }}
+        - name: https_proxy
+          value:  {{.Values.global.proxy}}
+        - name: HTTP_PROXY
+          value:  {{.Values.global.proxy}}
+        - name: HTTPS_PROXY
+          value:  {{.Values.global.proxy}}
+        {{ end }}
+        {{ if .Values.global.noProxy }}
+        - name: no_proxy
+          value:  {{.Values.global.noProxy}}
+        - name: NO_PROXY
+          value:  {{.Values.global.noProxy}}
+        {{ end }}
+        - name: REACT_APP_RUNTIME_PACHYDERM_PUBLIC_HOST
+          value: {{ include "pachyderm.host" . }}
+        - name: REACT_APP_RUNTIME_PACHYDERM_PUBLIC_TLS
+          value: "{{ .Values.proxy.tls.enabled | ternary "true" "false" }}"
+        {{- if .Values.console.resources }}
+        resources: {{ toYaml .Values.console.resources | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - mountPath: /home/
+          name: home
+        - mountPath: /tmp/
+          name: tmp
+        {{- if and .Values.pachd.tls.enabled .Values.global.customCaCerts }}
+        - mountPath: /pach-tls/certs
+          name: pachd-tls-cert
+        {{- end }}
+      {{- if .Values.global.securityContexts.enabled }}
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+              drop:
+              - all
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      {{- end }}
+      {{- if .Values.console.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.console.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.console.tolerations }}
+      tolerations: {{ toYaml .Values.console.tolerations | nindent 8 }}
+      {{- end }}
+      volumes:
+      - emptyDir: {}
+        name: tmp
+      - emptyDir: {}
+        name: home
+      {{- if and .Values.pachd.tls.enabled .Values.global.customCaCerts }}
+      - name: pachd-tls-cert
+        secret:
+          secretName: {{ required "If pachd.tls.enabled, you must set pachd.tls.secretName" .Values.pachd.tls.secretName | quote }}
+          items:
+          - key: tls.crt
+            path: root.crt
+      {{- end }}
+{{ end -}}

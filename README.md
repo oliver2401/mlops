@@ -26,19 +26,3 @@ for pv in $pvs; do
     echo $pv '|' $(k get pv $pv -o jsonpath='{.spec.nfs.path}'| sed 's|^\(/[^/]*\)/\([^/]*\)/\(.*\)$|/data\1/\3|')
 done
 ```
-
-
-
-
-## IMPORTANT
-### NFS per ENVIRONMENT
-/data/ns3-dev/aidrive -? backup cycle
-/data/ns3-prod/aidrive -? backup cycle
-/data/ns3-{env}/aidrive
-/data/ns3-{env}/aidrive/mlflow
-/data/ns3-{env}/aidrive/otro
-
-### User - 1000
-Keep in mind Pachyderm is using user 1000, so make sure it exists in target nfs
-- Development is: /data/ns3vlan123son1gyed/
-[link](https://github.com/pachyderm/pachyderm/blob/master/Dockerfile.worker#L13)

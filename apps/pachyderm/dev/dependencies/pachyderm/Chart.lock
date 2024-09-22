@@ -1,0 +1,9 @@
+dependencies:
+- name: postgresql
+  repository: file://./dependencies/postgresql
+  version: 10.8.0
+- name: loki-stack
+  repository: file://./dependencies/loki-stack
+  version: 2.8.1
+digest: sha256:debfeb86e5cbcc17b37919eb27db6f83f72b2a65ad3e362f34a0d4db42d01389
+generated: "2024-04-16T14:51:00.889737-07:00"
