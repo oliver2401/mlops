@@ -1,7 +1,7 @@
 pachyderm: 
   deployTarget: LOCAL
   etcd:
-    storageClass: "" #"nfs-client"
+    storageClass: "nfs-client"
   enterpriseServer:
       image:
         repository: "pachyderm/pachd"
@@ -11,13 +11,12 @@ pachyderm:
     enabled: true
     host: "pachyderm-EdgarOliver-experiment"
 
-  lokistack:
+  loki-stack:
     loki:
       persistence:
         enabled: true
         existingClaim: "loki-pvc" ## ADDED
         storageClassName: "sc-pachyderm"
-        route: /home/kuser/pachyderm_data/loki
       ## mkdir /data/loki: permission denied
       ##
       securityContext:
@@ -33,7 +32,7 @@ pachyderm:
       tag: "2.7.3"
     storage:
       local:
-        hostPath: "/home/kuser/pachyderm_data"
+        hostPath: "/home/kuser/MLOps/pachyderm_data/pachd"
   kubeEventTail:
     image:
       repository: pachyderm/kube-event-tail
@@ -58,7 +57,6 @@ pachyderm:
       existingClaim: "postgres-pvc" ### ADDED
       #mountPath: /bitnami/postgresql ### ADDED
       storageClass: "sc-pachyderm"
-      route: /home/kuser/pachyderm_data/postgresql
   proxy:
     host: "localhost"
     image:

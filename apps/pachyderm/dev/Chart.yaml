@@ -4,6 +4,7 @@ name: pachyderm
 dependencies:
 - name: pachyderm
   version: "2.7.3"
+  # repository: "http://assets-server.ai-dev.i.telconet.net/charts/"
   repository: file://./dependencies/pachyderm
 type: application
 version: 2.7.3

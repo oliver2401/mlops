@@ -9,10 +9,13 @@ spec:
   capacity:
     storage: 10Gi
   volumeMode: Filesystem
+  #nfs:
+  #  path: /ns3vlan123son1gyed/ds8/pachyderm_data_dev
+  #  server: sarak.vlan123.son1.gyed.n.telconet.cloud
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: {{ .Values.pachyderm.loki-stack.loki.persistence.route }}  # Specify the directory path on the host
+    path: /home/kuser/pachyderm/loki  # Specify the directory path on the host
     type: DirectoryOrCreate
