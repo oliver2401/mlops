@@ -9,10 +9,10 @@ pachyderm:
         tag: "2.7.3"
   ingress:
     enabled: true
-    host: "pachyderm-EdgarOliver-experiment"
+    host: "pachyderm-ui-experiment"
 
   loki-stack:
-    loki:
+    loki: # falla el pachyderm-loki el pod
       persistence:
         enabled: true
         existingClaim: "loki-pvc" ## ADDED
