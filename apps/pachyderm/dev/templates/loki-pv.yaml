@@ -14,5 +14,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: {{ .Values.pachyderm.loki-stack.loki.persistence.localhostpath }}  # Specify the directory path on the host
+    path: {{ .Values.pachyderm.loki-stack.loki.persistence.route }}  # Specify the directory path on the host
     type: DirectoryOrCreate

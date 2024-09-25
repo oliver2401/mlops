@@ -17,7 +17,7 @@ pachyderm:
         enabled: true
         existingClaim: "loki-pvc" ## ADDED
         storageClassName: "sc-pachyderm"
-        localhostpath: /home/kuser/pachyderm_data/loki
+        route: /home/kuser/pachyderm_data/loki
       ## mkdir /data/loki: permission denied
       ##
       securityContext:
@@ -58,7 +58,7 @@ pachyderm:
       existingClaim: "postgres-pvc" ### ADDED
       #mountPath: /bitnami/postgresql ### ADDED
       storageClass: "sc-pachyderm"
-      localhostpath: /home/kuser/pachyderm_data/postgresql
+      route: /home/kuser/pachyderm_data/postgresql
   proxy:
     host: "localhost"
     image:
