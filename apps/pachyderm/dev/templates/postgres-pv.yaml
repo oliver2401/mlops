@@ -14,5 +14,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   hostPath:
-    path: {{ .Values.persistentVolumes.mlflow.nfsPath  }}  # Specify the directory path on the host
+    path: {{ .Values.pachyderm.postgresql.persistence.localhostpath }}  # Specify the directory path on the host
     type: DirectoryOrCreate
