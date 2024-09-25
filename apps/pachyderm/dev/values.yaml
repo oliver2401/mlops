@@ -1,7 +1,7 @@
 pachyderm: 
   deployTarget: LOCAL
   etcd:
-    storageClass: "nfs-client"
+    storageClass: "" #"nfs-client"
   enterpriseServer:
       image:
         repository: "pachyderm/pachd"
@@ -11,7 +11,7 @@ pachyderm:
     enabled: true
     host: "pachyderm-EdgarOliver-experiment"
 
-  loki-stack:
+  lokistack:
     loki:
       persistence:
         enabled: true
