@@ -19,11 +19,11 @@ pachyderm:
         storageClassName: "sc-pachyderm"
       ## mkdir /data/loki: permission denied
       ##
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
+      #securityContext:
+      #  fsGroup: 1000
+      #  runAsGroup: 1000
+      #  runAsNonRoot: true
+      #  runAsUser: 1000
       ## mkdir /data/loki: permission denied
       ##
   pachd:
