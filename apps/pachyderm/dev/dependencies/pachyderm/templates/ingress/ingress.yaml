@@ -13,6 +13,7 @@ metadata:
     app: "console"
     suite: "pachyderm"
 spec:
+  ingressClassName: nginx
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - secretName: {{ required "if ingress.tls.enabled you must specify ingress.tls.secretName" .Values.ingress.tls.secretName }}
